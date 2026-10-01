@@ -55,6 +55,8 @@ namespace
     constexpr RE::FormID kCcModeEnabled = 0x826;            // Survival_ModeEnabled, 1 = on
     constexpr std::array<RE::FormID, 5> kCcHungerStages{0x87E, 0x880, 0x881, 0x886, 0x885};
     constexpr std::array<RE::FormID, 5> kCcExhaustionStages{0x878, 0x879, 0x87A, 0x87B, 0x87D};
+    // With the CC's disease setting off, stages 3-5 of exhaustion are these spells instead (0 = no variant)
+    constexpr std::array<RE::FormID, 5> kCcExhaustionNoDisease{0, 0, 0x90F, 0x90C, 0x90D};
     constexpr std::array<RE::FormID, 5> kCcColdStages{0x86E, 0x891, 0x86D, 0x870, 0x871};
 
     // Frostfall reports the distance to its nearest heat source (it looks at most 600 units out); a
@@ -97,6 +99,22 @@ namespace
         std::array<bool, N> present{};
         for (std::size_t i = 0; i < N; ++i) {
             if (auto* spell = Find<RE::SpellItem>(ids[i], plugin)) {
+                present[i] = actor && actor->HasSpell(spell);
+            }
+        }
+        return present;
+    }
+
+    // The CC's stage spells, with an optional alternate spell per stage (0 = none): a stage is present when either is
+    std::array<bool, 5> StagesOn(RE::Actor* actor, const std::array<RE::FormID, 5>& ids,
+                                 const std::array<RE::FormID, 5>& alternates, const char* plugin)
+    {
+        auto present = SpellsOn(actor, ids, plugin);
+        for (std::size_t i = 0; i < alternates.size(); ++i) {
+            if (alternates[i] == 0 || present[i]) {
+                continue;
+            }
+            if (auto* spell = Find<RE::SpellItem>(alternates[i], plugin)) {
                 present[i] = actor && actor->HasSpell(spell);
             }
         }
@@ -186,7 +204,7 @@ namespace
             const auto on = GlobalValue(kCcModeEnabled, kSurvivalCc);
             cc.on = on.has_value() && static_cast<int>(std::lround(*on)) == 1;
             cc.hunger = SurvivalStage(cc.on, SpellsOn(player, kCcHungerStages, kSurvivalCc));
-            cc.exhaustion = SurvivalStage(cc.on, SpellsOn(player, kCcExhaustionStages, kSurvivalCc));
+            cc.exhaustion = SurvivalStage(cc.on, StagesOn(player, kCcExhaustionStages, kCcExhaustionNoDisease, kSurvivalCc));
             cc.cold = SurvivalStage(cc.on, SpellsOn(player, kCcColdStages, kSurvivalCc));
             snap.player.cc = cc;
         }
