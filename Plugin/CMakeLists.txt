@@ -39,6 +39,7 @@ add_library(${PROJECT_NAME} SHARED
     HTTPUploader.cpp HerikaEyes.cpp AudioManager.cpp SpeakManager.cpp HTTPManager.cpp SpatialAwareness.cpp
     SpatialSnapshotManager.cpp SpatialDoorState.cpp PlayerConversationRouter.cpp ThreadPool.cpp Plugin.cpp PluginVersion.cpp ScriptProxy.cpp
     PrismaUIBridge.cpp MusicManager.cpp VRItemAwareness.cpp ResourceFileReader.cpp DynamicDiaryBook.cpp ServerPluginSync.cpp SupportReportLauncher.cpp
+    SurvivalReporter.cpp
 )
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
@@ -79,5 +80,10 @@ if(BUILD_TESTING)
     target_include_directories(AIAgentChatboxModePolicyTests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_features(AIAgentChatboxModePolicyTests PRIVATE cxx_std_23)
     add_test(NAME AIAgentChatboxModePolicyTests COMMAND AIAgentChatboxModePolicyTests)
+
+    add_executable(AIAgentSurvivalReportPolicyTests tests/SurvivalReportPolicyTests.cpp)
+    target_include_directories(AIAgentSurvivalReportPolicyTests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+    target_compile_features(AIAgentSurvivalReportPolicyTests PRIVATE cxx_std_23)
+    add_test(NAME AIAgentSurvivalReportPolicyTests COMMAND AIAgentSurvivalReportPolicyTests)
 endif()
 

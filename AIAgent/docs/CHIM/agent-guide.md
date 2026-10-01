@@ -32,6 +32,7 @@ Paths below are relative to the CHIM checkout, not this installed documentation 
 | Papyrus declarations/behavior | `AIAgent/Source/Scripts/AIAgentFunctions.psc`, `AIAgentPapyrusFunctions.psc` in the same directory |
 | In-game UI/native bridge | `AIAgent/PrismaUI/views/CHIM/`, `Plugin/PrismaUIBridge.cpp` |
 | Installer and bundled files | `AIAgent/fomod/ModuleConfig.xml`, `AIAgent/` |
+| Survival report (optional survival mods' state) | `Plugin/SurvivalReporter.cpp`, `Plugin/SurvivalReportPolicy.h` |
 
 For prompts, providers or memory, move to HerikaServer instead of implementing a second copy in the client. Changes to shared settings or action messages may require paired changes and checks in both repositories.
 
@@ -55,6 +56,10 @@ Use the user's existing diagnostic controls where possible. Redact keys and priv
 ## Build, extend and validate
 
 See [building.md](building.md) and [custom-plugins.md](custom-plugins.md). Native, Papyrus, UI and server changes have different checks. Compile only the affected code, verify the intended output, and report actual game testing separately. Preserve optional integration behavior when dependencies are absent.
+
+## Survival report
+
+`PostSurvivalState` (called from the periodic maintenance pass beside `PostNearbyActivityStatus`) sends one `info_survival` event with the party's physical conditions, read softly from optional mods: Last Seed (hunger, thirst, fatigue), Frostfall (exposure, wetness, the nearest heat source), Campfire (whether the fire the party is at was built by the player), Dirt and Blood (the player's levels, each NPC's dirty/bloody mark) and the Survival Mode CC (stage spells while the mode is on). A mod that is not installed contributes nothing: its keys are left out, which a consumer must read as unknown, never as fine, and with none installed no event is sent. The server logs any `info*` event without speaking it; the JSON in the data column is versioned (`v`) and described in `SurvivalReportPolicy.h`. It is sent when something changed and repeated every five minutes otherwise; a save load resets it so the next pass reports again after `init`. The form ids live in `SurvivalReporter.cpp` next to the plugin each belongs to. The wire format has unit tests (`Plugin/tests/SurvivalReportPolicyTests.cpp`); reading the live game values has only been compiled, so check the log line `[SURVIVAL] reported` in game after changing it.
 
 ## Packaging these instructions
 
