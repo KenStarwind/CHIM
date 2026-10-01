@@ -53,6 +53,7 @@
 #include "SpatialSnapshotManager.h"
 #include "VRItemAwareness.h"
 #include "ServerPluginSync.h"
+#include "SurvivalReporter.h"
 
 using json = nlohmann::json;
 
@@ -2370,6 +2371,7 @@ private:
                                     HTTPManager::log(std::format("infonpc_close|{}|{}|{}", getCurrentTimeMillis(),
                                                                  GetGameTimeStamp(), result));
                                     PostNearbyActivityStatus(player, 3000.0f);
+                                    PostSurvivalState(player, 3000.0f);
 
                                     controlLastInfoSent = std::chrono::high_resolution_clock::now();
                                 }
@@ -7950,6 +7952,9 @@ OnLoadedGame {
         HTTPManager::log(
             std::format("infonpc_close|{}|{}|{}", getCurrentTimeMillis(), GetGameTimeStamp(), resultClose));
         PostNearbyActivityStatus(player, 3000.0f);
+        // The server's event log is rolled back to the save by the init below: report again on the next
+        // maintenance pass (after init, so the row is not pruned with the rolled-back future).
+        ResetSurvivalReport();
 
         logger::debug("Sending init msg init|{}|{}", getCurrentTimeMillis(), GetGameTimeStamp() + 1, PLUGIN_VERSION);
         HTTPManager::log(std::format("init|{}|{}|{}", getCurrentTimeMillis(), GetGameTimeStamp() + 1, PLUGIN_VERSION));
@@ -8028,6 +8033,9 @@ OnLoadedGame {
         HTTPManager::log(
             std::format("infonpc_close|{}|{}|{}", getCurrentTimeMillis(), GetGameTimeStamp(), resultClose));
         PostNearbyActivityStatus(player, 3000.0f);
+        // The server's event log is rolled back to the save by the init below: report again on the next
+        // maintenance pass (after init, so the row is not pruned with the rolled-back future).
+        ResetSurvivalReport();
 
 
         logger::debug("Sending init msg");
