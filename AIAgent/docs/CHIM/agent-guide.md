@@ -33,6 +33,7 @@ Paths below are relative to the CHIM checkout, not this installed documentation 
 | In-game UI/native bridge | `AIAgent/PrismaUI/views/CHIM/`, `Plugin/PrismaUIBridge.cpp` |
 | Installer and bundled files | `AIAgent/fomod/ModuleConfig.xml`, `AIAgent/` |
 | Survival report (optional survival mods' state) | `Plugin/SurvivalReporter.cpp`, `Plugin/SurvivalReportPolicy.h` |
+| RelDyn body bridge (OBlush blush on the server's command; optional) | `AIAgent/Optional/RelDynBody/` (Papyrus only, reached through the `ExtCmd` branch of `Plugin/Commands.cpp`) |
 
 For prompts, providers or memory, move to HerikaServer instead of implementing a second copy in the client. Changes to shared settings or action messages may require paired changes and checks in both repositories.
 
